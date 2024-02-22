@@ -4,7 +4,7 @@ import TileLayer from 'ol/layer/WebGLTile.js';
 import OSM from 'ol/source/OSM';
 import GeoTIFF from 'ol/source/GeoTIFF.js';
 import { get as getProjection, transform, Projection } from 'ol/proj.js';
-
+import { createXYZ } from "ol/tilegrid";
 
 // create the map projection
 // /////////////////////////
@@ -52,6 +52,13 @@ let tif_layer = new TileLayer({
   }
 });
 let tif_view = await tif_layer.getSource().getView();
+
+// "mike-00"s sugestion to fix
+tif_layer
+  .getSource()
+  .setTileGridForProjection(
+    "EPSG:3857",
+    createXYZ({ maxZoom: 4 }));
 
 // create the map
 const map = new Map({
