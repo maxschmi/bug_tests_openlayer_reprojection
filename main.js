@@ -5,22 +5,13 @@ import OSM from 'ol/source/OSM';
 import GeoTIFF from 'ol/source/GeoTIFF.js';
 import { get as getProjection, transform, Projection } from 'ol/proj.js';
 import { createXYZ } from "ol/tilegrid";
+import { create_hover } from './hover';
 
 // create the map projection
 // /////////////////////////
 // with proj4
 let map_proj = getProjection("EPSG:3857");
 let tif_proj = getProjection("EPSG:4326");
-
-//  or with ol.proj.Projection
-// let map_proj = new Projection({
-//   code: "EPSG:3857",
-//   units: 'm'
-// });
-// let tif_proj = new Projection({
-//   code: "EPSG:4326",
-//   units: 'degrees'
-// });
 
 // create the tif layer
 let tif_layer = new TileLayer({
@@ -75,3 +66,5 @@ const map = new Map({
     projection: map_proj
   })
 });
+
+create_hover(map, tif_layer);
