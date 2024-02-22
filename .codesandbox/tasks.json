@@ -12,17 +12,18 @@
     "start": {
       "name": "start",
       "command": "npm run start",
-      "runAtStart": true
+      "runAtStart": true,
+      "preview": {
+        "port": 5173
+      }
     },
     "build": {
       "name": "build",
-      "command": "npm run build",
-      "runAtStart": false
+      "command": "npm run build"
     },
     "serve": {
       "name": "serve",
-      "command": "npm run serve",
-      "runAtStart": false
+      "command": "npm run serve"
     }
   }
 }
