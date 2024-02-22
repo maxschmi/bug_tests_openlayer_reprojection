@@ -1,0 +1,16 @@
+{
+  "name": "wgs84-mercator",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.1.3"
+  },
+  "dependencies": {
+    "ol": "latest",
+    "proj4": "^2.10.0"
+  }
+}
