@@ -3,10 +3,13 @@ import {Map, View} from 'ol';
 import TileLayer from 'ol/layer/WebGLTile.js';
 import OSM from 'ol/source/OSM';
 import GeoTIFF from 'ol/source/GeoTIFF.js';
-import { get as getProjection, transform, Projection } from 'ol/proj.js';
+import { get as getProjection, transform, transformExtent } from 'ol/proj.js';
 import { createXYZ } from "ol/tilegrid";
 import { create_hover } from './hover';
 import './polyfill.js';
+import { calculateSourceResolution } from 'ol/reproj.js';
+import { getWidth } from 'ol/extent';
+import { toSize } from 'ol/size';
 
 // create the map projection
 // /////////////////////////
@@ -44,14 +47,35 @@ let tif_layer = new TileLayer({
   }
 });
 let tif_view = await tif_layer.getSource().getView();
+let tile_extent = transformExtent(tif_view.extent, tif_proj, map_proj);
 
 // "mike-00"s sugestion to fix
+const source = tif_layer.getSource();
+const tileGrid = source.getTileGrid();
+const resolutions = tileGrid.getResolutions();
+const maxZoom = resolutions.length - 1;
+const resolution =
+  (resolutions[maxZoom] * getWidth(map_proj.getExtent())) /
+  getWidth(tif_view.projection.getExtent());
+
+const reprojTilePixelRatio = Math.max.apply(
+  null,
+  tileGrid.getResolutions().map((r, z) => {
+    const tileSize = toSize(tileGrid.getTileSize(z));
+    const textureSize = source.getTileSize(z);
+    return Math.max(textureSize[0] / tileSize[0], textureSize[1] / tileSize[1]);
+  })
+);
+
 tif_layer
   .getSource()
   .setTileGridForProjection(
     "EPSG:3857",
-    createXYZ({ maxZoom: 5 }));
-
+    createXYZ({
+      extent: transformExtent(tif_view.extent, tif_view.projection, map_proj),
+      maxResolution: resolution * reprojTilePixelRatio,
+      maxZoom: maxZoom
+    }));
 
 // create the map
 const map = new Map({
