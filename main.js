@@ -13,7 +13,8 @@ import { toSize } from "ol/size";
 import GeoJSON from "ol/format/GeoJSON.js";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
-import { Style, Stroke } from "ol/style";
+import { Style, Stroke, Fill } from "ol/style";
+import colormap from 'colormap';
 
 // create the map projection
 // /////////////////////////
@@ -84,6 +85,44 @@ tif_layer.getSource().setTileGridForProjection(
   }),
 );
 
+//  grid shp
+let min = 30847;
+let max = 98610;
+const steps = 72;
+const ramp = colormap({
+  colormap: 'greys',
+  nshades: steps,
+});
+
+function clamp(value, low, high) {
+  return Math.max(low, Math.min(value, high));
+}
+function getColor(feature) {
+  const value = feature.values_.ID;
+  const f = Math.pow(clamp((value - min) / (max - min), 0, 1), 1 / 2);
+  const index = Math.round(f * (steps - 1));
+  // console.log(value, index, ramp[index]);
+  return ramp[index];
+}
+let grid_source = new VectorSource({
+  format: new GeoJSON(),
+  url: "./grid_shp.geojson",
+})
+let grid_layer = new VectorLayer({
+  source: grid_source,
+  style: function (feature) {
+    let color = getColor(feature);
+    return new Style({
+      fill: new Fill({
+        color: color,
+      }),
+      stroke: new Stroke({
+        color: color,
+      }),
+    });
+  },
+});
+
 // create the map
 const map = new Map({
   target: "map",
@@ -104,6 +143,7 @@ const map = new Map({
         }),
       }),
     }),
+    grid_layer
   ],
   view: new View({
     center: transform(tif_view.center, tif_proj, map_proj),
