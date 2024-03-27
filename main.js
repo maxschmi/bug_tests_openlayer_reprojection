@@ -88,9 +88,9 @@ let tif_view = await tif_layer.getSource().getView();
 const map = new Map({
   target: "map",
   layers: [
-    // new TileLayer({
-    //   source: new OSM(),
-    // }),
+    new TileLayer({
+      source: new OSM(),
+    }),
     tif_layer,
     new VectorLayer({
       source: new VectorSource({
